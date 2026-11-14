@@ -88,15 +88,18 @@ class Resultat:
     def decision(self, matricule: str) -> Decision:
         """Question B.2. La décision du matricule (normalisé : espaces,
         majuscules) ; lève KeyError s'il n'a pas concouru."""
-        cible = matricule.strip().upper()
+        matricule = matricule.strip().upper()
         for d in self.decisions:
-            if d.matricule == cible:
+            if d.matricule == matricule:
                 return d
         raise KeyError(matricule)
+    
+
 
     def affectes(self, code: str) -> list[str]:
         """Question B.2. Matricules affectés à l'option, dans l'ordre de passage."""
         return [d.matricule for d in self.decisions if d.option == code]
+
 
     def non_affectes(self) -> list[str]:
         """Question B.2. Candidats sans option, dans l'ordre de passage."""
@@ -106,15 +109,19 @@ class Resultat:
         """Question B.2. {code: nombre d'affectés}, dans l'ordre des options."""
         return {ue.code: len(self.affectes(ue.code)) for ue in self.options}
 
+
     def satisfaction(self) -> Counter:
         """Question B.2. Counter : nombre de candidats par rang de choix obtenu
         (clé None : non affecté)."""
         return Counter(d.rang_choix for d in self.decisions)
 
+
     @property
     def erreurs(self) -> list[Signalement]:
         """Question B.2. Les signalements « erreur », dans l'ordre du journal."""
         return [s for s in self.journal if s.gravite == "erreur"]
+
+
 
 
 class Campagne:
@@ -149,44 +156,9 @@ class Campagne:
 
     def places_restantes(self, code: str) -> int:
         """Question B.3. Capacité de l'option moins ses inscrits au registre."""
-        ue = self.registre.ue(code)
-        return ue.capacite - len(self.registre.inscrits(ue.code))
+        ue = self._options[code]
+        return ue.capacite - len(self.registre.inscrits(code))
 
-    def _verifier_candidat(
-        self, voeu: Voeu
-    ) -> tuple[Candidat | None, Signalement | None]:
-        """Valide un vœu auprès du registre ; renvoie (candidat, erreur)."""
-        try:
-            etudiant = self.registre.etudiant(voeu.matricule)
-        except KeyError:
-            return None, Signalement(
-                voeu.ligne,
-                "erreur",
-                f"étudiant '{voeu.matricule}' inconnu du registre",
-            )
-        if etudiant.archive:
-            return None, Signalement(
-                voeu.ligne, "erreur", f"étudiant '{voeu.matricule}' archivé"
-            )
-        if etudiant.niveau != NIVEAU_CAMPAGNE:
-            return None, Signalement(
-                voeu.ligne,
-                "erreur",
-                f"étudiant '{voeu.matricule}' hors {NIVEAU_CAMPAGNE}"
-                f" ({etudiant.niveau})",
-            )
-        try:
-            releve = self.registre.releve(voeu.matricule, 1)
-        except ErreurCampus:
-            return None, Signalement(
-                voeu.ligne,
-                "erreur",
-                f"aucun relevé S1 pour '{voeu.matricule}'",
-            )
-        return (
-            Candidat(etudiant, voeu, releve.moyenne, releve.credits_acquis),
-            None,
-        )
 
     def candidats(
         self, voeux: list[Voeu]
@@ -197,15 +169,22 @@ class Campagne:
         NIVEAU_CAMPAGNE ;
         construit un Candidat pour chacun des autres (moyenne et crédits acquis
         du relevé du semestre 1). Renvoie (candidats, journal)."""
-        liste_candidats: list[Candidat] = []
-        journal: list[Signalement] = []
+        candidats = []
+        journal = []
         for voeu in voeux:
-            candidat, err = self._verifier_candidat(voeu)
-            if err is not None:
-                journal.append(err)
-            else:
-                liste_candidats.append(candidat)
-        return liste_candidats, journal
+            mat = voeu.matricule
+            try:
+                etudiant = self.registre.etudiant(mat)
+                if etudiant.archive:
+                    raise ErreurCampus("Etudiant archivé")
+                if etudiant.niveau != NIVEAU_CAMPAGNE:
+                    raise ErreurCampus(f"niveau {etudiant.niveau}, attendu {NIVEAU_CAMPAGNE}")
+                releve = self.registre.releve(mat, 1)
+            except (ErreurCampus, KeyError) as e:
+                journal.append(Signalement(voeu.ligne, "erreur", f"{mat} : {e}"))
+                continue
+            candidats.append(Candidat(etudiant, voeu, releve.moyenne, releve.credits_acquis))
+        return candidats, journal
 
     def executer(
         self, voeux: list[Voeu], journal_lecture: list[Signalement] = ()
@@ -215,29 +194,34 @@ class Campagne:
         if self._executee:
             raise CampagneDejaExecutee("la campagne a déjà été exécutée")
         self._executee = True
+        candidats, journal_candidats = self.candidats(voeux)
+        candidats_ordonnes = self.priorite.ordonner(candidats)
 
-        cands, journal_cands = self.candidats(voeux)
-        ordonnes = self.priorite.ordonner(cands)
-        decisions = tuple(
-            self._traiter(rang, c) for rang, c in enumerate(ordonnes, start=1)
+        decisions = []
+        for rang, cand in enumerate(candidats_ordonnes, start=1):
+            dec = self._traiter(rang, cand)
+            decisions.append(dec)
+        
+        journal_total = sorted(list(journal_lecture) + journal_candidats, key= lambda s: s.ligne)
+
+        return Resultat(
+            self.priorite.nom,
+            self.options,
+            tuple(decisions),
+            tuple(journal_total),
         )
-        journal = tuple(
-            sorted([*journal_lecture, *journal_cands], key=lambda s: s.ligne)
-        )
-        return Resultat(self.priorite.nom, self.options, decisions, journal)
+
 
     def _traiter(self, rang: int, candidat: Candidat) -> Decision:
         """Question B.4 (auxiliaire suggérée, libre). Décision pour un candidat."""
-        refus: list[tuple[str, tuple[str, ...]]] = []
+        refus = []
+
         for code in candidat.voeu.choix:
             if code not in self._options:
                 refus.append((code, ("option inconnue de la campagne",)))
                 continue
             try:
                 self.registre.inscrire(candidat.matricule, code)
-            except InscriptionRefusee as exc:
-                refus.append((code, tuple(exc.motifs)))
-            else:
                 return Decision(
                     rang,
                     candidat.matricule,
@@ -245,4 +229,8 @@ class Campagne:
                     candidat.voeu.rang(code),
                     tuple(refus),
                 )
+            except InscriptionRefusee as e:
+                refus.append((code, tuple(e.motifs)))
+
         return Decision(rang, candidat.matricule, None, None, tuple(refus))
+

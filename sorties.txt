@@ -8,15 +8,15 @@ Priorité merite : 40 candidats
   non affectés : 6
 Journal : 5 corrections, 5 erreurs
   ligne 4 [correction] matricule 'ipn-2024-0057' normalisé en IPN-2024-0057
-  ligne 5 [correction] soumission de IPN-2024-0067 écartée au profit de la ligne 27
-  ligne 7 [erreur] horodatage '31/02/2026 10:15' invalide
-  ligne 10 [correction] choix 'OPT 282' en double retiré
+  ligne 5 [correction] soumission écartée au profit de la ligne 27
+  ligne 7 [erreur] horodatage invalide : '31/02/2026 10:15'
+  ligne 10 [correction] code 'OPT 282' en double, retiré
   ligne 13 [erreur] code 'OPT 284' inconnu
-  ligne 15 [erreur] aucun choix valide pour 'IPN-2024-0065'
-  ligne 19 [correction] choix '  opt   282 ' normalisé en OPT 282
-  ligne 22 [correction] matricule ' IPN-2024-0095  ' normalisé en IPN-2024-0095
-  ligne 30 [erreur] étudiant 'IPN-2023-0099' hors L2 (L3)
-  ligne 33 [erreur] étudiant 'IPN-2024-9999' inconnu du registre
+  ligne 15 [erreur] aucun choix valide
+  ligne 19 [correction] code 'opt   282' normalisé en OPT 282
+  ligne 22 [correction] matricule 'IPN-2024-0095' normalisé en IPN-2024-0095
+  ligne 30 [erreur] IPN-2023-0099 : niveau L3, attendu L2
+  ligne 33 [erreur] IPN-2024-9999 : 'IPN-2024-9999'
 Priorité chronologique : 40 candidats
   OPT 281   12 / 12  Développement mobile
   OPT 282   11 / 12  Internet des objets
@@ -27,12 +27,12 @@ Priorité chronologique : 40 candidats
   non affectés : 5
 Journal : 5 corrections, 5 erreurs
   ligne 4 [correction] matricule 'ipn-2024-0057' normalisé en IPN-2024-0057
-  ligne 5 [correction] soumission de IPN-2024-0067 écartée au profit de la ligne 27
-  ligne 7 [erreur] horodatage '31/02/2026 10:15' invalide
-  ligne 10 [correction] choix 'OPT 282' en double retiré
+  ligne 5 [correction] soumission écartée au profit de la ligne 27
+  ligne 7 [erreur] horodatage invalide : '31/02/2026 10:15'
+  ligne 10 [correction] code 'OPT 282' en double, retiré
   ligne 13 [erreur] code 'OPT 284' inconnu
-  ligne 15 [erreur] aucun choix valide pour 'IPN-2024-0065'
-  ligne 19 [correction] choix '  opt   282 ' normalisé en OPT 282
-  ligne 22 [correction] matricule ' IPN-2024-0095  ' normalisé en IPN-2024-0095
-  ligne 30 [erreur] étudiant 'IPN-2023-0099' hors L2 (L3)
-  ligne 33 [erreur] étudiant 'IPN-2024-9999' inconnu du registre
+  ligne 15 [erreur] aucun choix valide
+  ligne 19 [correction] code 'opt   282' normalisé en OPT 282
+  ligne 22 [correction] matricule 'IPN-2024-0095' normalisé en IPN-2024-0095
+  ligne 30 [erreur] IPN-2023-0099 : niveau L3, attendu L2
+  ligne 33 [erreur] IPN-2024-9999 : 'IPN-2024-9999'

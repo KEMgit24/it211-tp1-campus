@@ -20,11 +20,14 @@ class Priorite(ABC):
     @abstractmethod
     def cle(self, candidat: "Candidat") -> tuple:
         """Clé de tri ; deux candidats distincts ont des clés distinctes."""
+     
 
     def ordonner(self, candidats: list["Candidat"]) -> list["Candidat"]:
         """Question B.1. Les candidats, du plus prioritaire au moins prioritaire,
-        dans une nouvelle liste (la liste reçue n'est pas modifiée)."""
+        dans une nouvelle liste (la liste reçue n'est pas modifiée).
+        """
         return sorted(candidats, key=self.cle)
+    
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}()"
@@ -40,9 +43,7 @@ class PrioriteMerite(Priorite):
         """Question B.1."""
         return (
             -candidat.moyenne,
-            -candidat.credits_acquis,
-            candidat.voeu.horodatage,
-            candidat.matricule,
+            -candidat.credits_acquis, candidat.voeu.horodatage, candidat.matricule,
         )
 
 
@@ -53,7 +54,10 @@ class PrioriteChronologique(Priorite):
 
     def cle(self, candidat: "Candidat") -> tuple:
         """Question B.1."""
-        return (candidat.voeu.horodatage, candidat.matricule)
+        return (
+            candidat.voeu.horodatage, candidat.matricule,
+        )
+        
 
 
 class PrioriteTirage(Priorite):

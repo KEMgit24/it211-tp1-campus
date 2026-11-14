@@ -6,6 +6,7 @@ des fonctions auxiliaires (leur nom commencera par un tiret bas).
 """
 
 import csv
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -50,28 +51,28 @@ class Voeu:
         horodatage n'est pas un datetime ; choix n'est pas un tuple ;
         choix compte moins de 1 ou plus de CHOIX_MAX éléments ;
         un même code figure deux fois dans choix."""
-        if not isinstance(
-            self.matricule, str
-        ) or not Etudiant.MOTIF_MATRICULE.fullmatch(self.matricule):
-            raise VoeuInvalide(
-                f"matricule invalide : '{self.matricule}'", self.ligne
-            )
+        if not re.fullmatch(Etudiant.MOTIF_MATRICULE,self.matricule):
+            raise VoeuInvalide("matricule invalide",self.ligne)
+
         if not isinstance(self.horodatage, datetime):
-            raise VoeuInvalide("horodatage attendu", self.ligne)
-        if not isinstance(self.choix, tuple) or not (
-            1 <= len(self.choix) <= CHOIX_MAX
-        ):
-            taille = len(self.choix) if isinstance(self.choix, tuple) else "?"
-            raise VoeuInvalide(
-                f"nombre de choix invalide ({taille})", self.ligne
-            )
-        if len(set(self.choix)) != len(self.choix):
+            raise VoeuInvalide("horodatage invalide", self.ligne)
+
+        if not isinstance(self.choix, tuple) or not (1 <= len(self.choix) <= CHOIX_MAX):
+            raise VoeuInvalide("choix invalide", self.ligne)
+
+        if len(self.choix) != len(set(self.choix)):
             raise VoeuInvalide("choix en double", self.ligne)
+
+
 
     def rang(self, code: str) -> int | None:
         """Question A.2. Rang (1, 2 ou 3) de code dans les choix ; None s'il n'y
         figure pas."""
-        return self.choix.index(code) + 1 if code in self.choix else None
+        try:
+            return self.choix.index(code) + 1
+        except ValueError:
+            return None
+    
 
 
 def normaliser_code(texte: str) -> str:
@@ -85,118 +86,9 @@ def lire_horodatage(texte: str) -> datetime:
     Lève VoeuInvalide (sans numéro de ligne) si le texte ne respecte pas le format
     ou désigne une date impossible."""
     try:
-        return datetime.strptime(texte.strip(), FORMAT_HORODATAGE)
-    except ValueError as exc:
-        raise VoeuInvalide(f"horodatage invalide : '{texte}'") from exc
-
-
-def _lire_lignes_csv(chemin: Path | str, separateur: str) -> list[list[str]]:
-    """Lit et valide l'en-tête du fichier CSV des vœux (règle R1)."""
-    try:
-        with open(chemin, encoding="utf-8-sig", newline="") as f:
-            lignes = list(csv.reader(f, delimiter=separateur, strict=True))
-    except (UnicodeDecodeError, csv.Error) as exc:
-        raise VoeuInvalide(str(exc)) from exc
-    if not lignes:
-        raise VoeuInvalide("fichier de vœux vide")
-    if tuple(c.strip() for c in lignes[0]) != ENTETE:
-        raise VoeuInvalide(f"en-tête invalide : {lignes[0]!r}", 1)
-    return lignes
-
-
-def _analyser_choix(
-    num_ligne: int,
-    cellules: list[str],
-    codes_ouverts: set[str],
-    journal: list[Signalement],
-) -> tuple[str, ...]:
-    """Nettoie, normalise et dédoublonne les choix d'une ligne (règle R6)."""
-    choix: list[str] = []
-    for brut in cellules:
-        if not brut.strip():
-            continue
-        code = normaliser_code(brut)
-        if code != brut:
-            journal.append(
-                Signalement(
-                    num_ligne, "correction", f"choix '{brut}' normalisé en {code}"
-                )
-            )
-        if code not in codes_ouverts:
-            journal.append(
-                Signalement(num_ligne, "erreur", f"code '{code}' inconnu")
-            )
-        elif code in choix:
-            journal.append(
-                Signalement(
-                    num_ligne, "correction", f"choix '{code}' en double retiré"
-                )
-            )
-        else:
-            choix.append(code)
-    return tuple(choix)
-
-
-def _analyser_ligne(
-    num_ligne: int,
-    champs: list[str],
-    codes_ouverts: set[str],
-    separateur: str,
-    journal: list[Signalement],
-) -> Voeu | None:
-    """Analyse une ligne de données du fichier de vœux (règles R2 à R7)."""
-    if all(not c.strip() for c in champs):
-        return None
-    if len(champs) != len(ENTETE):
-        contenu = separateur.join(champs)
-        journal.append(
-            Signalement(
-                num_ligne,
-                "erreur",
-                f"nombre de champs invalide ({len(champs)}) : '{contenu}'",
-            )
-        )
-        return None
-
-    brut_matricule, brut_horodatage = champs[0], champs[1]
-    matricule = brut_matricule.strip().upper()
-    if matricule != brut_matricule:
-        journal.append(
-            Signalement(
-                num_ligne,
-                "correction",
-                f"matricule '{brut_matricule}' normalisé en {matricule}",
-            )
-        )
-
-    try:
-        horodatage = lire_horodatage(brut_horodatage)
-    except VoeuInvalide:
-        journal.append(
-            Signalement(
-                num_ligne, "erreur", f"horodatage '{brut_horodatage}' invalide"
-            )
-        )
-        return None
-
-    choix = _analyser_choix(num_ligne, champs[2:], codes_ouverts, journal)
-    if not choix:
-        journal.append(
-            Signalement(
-                num_ligne, "erreur", f"aucun choix valide pour '{matricule}'"
-            )
-        )
-        return None
-
-    try:
-        return Voeu(matricule, horodatage, choix, num_ligne)
-    except VoeuInvalide:
-        journal.append(
-            Signalement(
-                num_ligne, "erreur", f"matricule '{brut_matricule}' mal formé"
-            )
-        )
-        return None
+        return datetime.strptime(texte.strip(),FORMAT_HORODATAGE)
+    except ValueError:
+        raise VoeuInvalide("Horodatage invalide : "+texte.strip())
 
 
 def lire_voeux(
@@ -209,29 +101,99 @@ def lire_voeux(
     Lève VoeuInvalide si l'en-tête n'est pas ENTETE ou si le fichier n'est pas
     un CSV lisible en UTF-8 (UnicodeDecodeError, csv.Error).
     """
-    lignes = _lire_lignes_csv(chemin, separateur)
-    journal: list[Signalement] = []
-    par_matricule: dict[str, list[Voeu]] = {}
+    voeux_par_matricule = {}
+    journal = []
 
-    for num_ligne, champs in enumerate(lignes[1:], start=2):
-        voeu = _analyser_ligne(
-            num_ligne, champs, codes_ouverts, separateur, journal
-        )
-        if voeu is not None:
-            par_matricule.setdefault(voeu.matricule, []).append(voeu)
+    try:
+        with open(chemin, encoding="utf-8-sig", newline="") as f:
+            lecteur = csv.reader(f, delimiter=separateur, strict=True)
 
-    voeux_retenus: list[Voeu] = []
-    for groupe in par_matricule.values():
-        retenu = max(groupe, key=lambda v: (v.horodatage, v.ligne))
-        voeux_retenus.append(retenu)
-        for v in groupe:
-            if v is not retenu:
-                msg = (
-                    f"soumission de {v.matricule} écartée "
-                    f"au profit de la ligne {retenu.ligne}"
-                )
-                journal.append(Signalement(v.ligne, "correction", msg))
+            # R1 : vérifier l'en-tête
+            try:
+                entete = next(lecteur)
+            except StopIteration:
+                raise VoeuInvalide("fichier vide")
 
-    voeux_retenus.sort(key=lambda v: v.ligne)
+            if tuple(ch.strip() for ch in entete) != ENTETE:
+                raise VoeuInvalide("en-tête inattendu")
+
+            for numero_ligne, champs in enumerate(lecteur, start=2):
+
+                # R2 : ignorer ligne entièrement vide 
+                if all(ch.strip() == "" for ch in champs):
+                    continue
+
+                # R3 : ereur pour nombre de champs incorrect
+                if len(champs) != 5:
+                    journal.append(Signalement(numero_ligne, "erreur",
+                        f"nombre de champs incorrect : '{separateur.join(champs)}'"))
+                    continue
+
+                # R4 : normaliser le matricule
+                matricule_brut = champs[0]
+                matricule = matricule_brut.strip().upper()
+                if matricule != matricule_brut:
+                    journal.append(Signalement(numero_ligne, "correction",
+                        f"matricule '{matricule_brut.strip()}' normalisé en {matricule}"))
+
+                # R5 : lire l'horodatage
+                try:
+                    horodatage = lire_horodatage(champs[1])
+                except VoeuInvalide:
+                    journal.append(Signalement(numero_ligne, "erreur",
+                        f"horodatage invalide : '{champs[1].strip()}'"))
+                    continue
+
+                # R6 : traiter les choix
+                choix_retenus = []
+                for brut in champs[2:5]:
+                    if brut.strip() == "":
+                        continue
+                    normalise = normaliser_code(brut)
+                    if normalise != brut:
+                        journal.append(Signalement(numero_ligne, "correction",
+                            f"code '{brut.strip()}' normalisé en {normalise}"))
+                    if normalise not in codes_ouverts:
+                        journal.append(Signalement(numero_ligne, "erreur",
+                            f"code '{normalise}' inconnu"))
+                        continue
+                    if normalise in choix_retenus:
+                        journal.append(Signalement(numero_ligne, "correction",
+                            f"code '{normalise}' en double, retiré"))
+                        continue
+                    choix_retenus.append(normalise)
+
+                # R7 : erreur pour aucun choix valide 
+                if not choix_retenus:
+                    journal.append(Signalement(numero_ligne, "erreur",
+                        "aucun choix valide"))
+                    continue
+
+                try:
+                    voeu = Voeu(matricule, horodatage, tuple(choix_retenus), numero_ligne)
+                except VoeuInvalide as e:
+                    journal.append(Signalement(numero_ligne, "erreur",
+                        f"{e.motif} : '{matricule_brut}'"))
+                    continue
+
+                # R8 : cas de doublon de matricule , garder le plus récent
+                if matricule in voeux_par_matricule:
+                    ancien = voeux_par_matricule[matricule]
+                    if (horodatage, numero_ligne) > (ancien.horodatage, ancien.ligne):
+                        journal.append(Signalement(ancien.ligne, "correction",
+                            f"soumission écartée au profit de la ligne {numero_ligne}"))
+                        voeux_par_matricule[matricule] = voeu
+                    else:
+                        journal.append(Signalement(numero_ligne, "correction",
+                            f"soumission écartée au profit de la ligne {ancien.ligne}"))
+                else:
+                    voeux_par_matricule[matricule] = voeu
+
+    except (UnicodeDecodeError, csv.Error) as e:
+        raise VoeuInvalide(str(e))
+
+    # R9 : trier par numéro de ligne
+    voeux = sorted(voeux_par_matricule.values(), key=lambda v: v.ligne)
     journal.sort(key=lambda s: s.ligne)
-    return voeux_retenus, journal
+    return voeux, journal
+
