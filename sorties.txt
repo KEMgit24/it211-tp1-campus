@@ -1,0 +1,38 @@
+Priorité merite : 40 candidats
+  OPT 281   12 / 12  Développement mobile
+  OPT 282   11 / 12  Internet des objets
+  OPT 283   11 / 12  Visualisation de données
+  choix 1 obtenu : 26
+  choix 2 obtenu : 4
+  choix 3 obtenu : 4
+  non affectés : 6
+Journal : 5 corrections, 5 erreurs
+  ligne 4 [correction] matricule 'ipn-2024-0057' normalisé en IPN-2024-0057
+  ligne 5 [correction] soumission de IPN-2024-0067 écartée au profit de la ligne 27
+  ligne 7 [erreur] horodatage '31/02/2026 10:15' invalide
+  ligne 10 [correction] choix 'OPT 282' en double retiré
+  ligne 13 [erreur] code 'OPT 284' inconnu
+  ligne 15 [erreur] aucun choix valide pour 'IPN-2024-0065'
+  ligne 19 [correction] choix '  opt   282 ' normalisé en OPT 282
+  ligne 22 [correction] matricule ' IPN-2024-0095  ' normalisé en IPN-2024-0095
+  ligne 30 [erreur] étudiant 'IPN-2023-0099' hors L2 (L3)
+  ligne 33 [erreur] étudiant 'IPN-2024-9999' inconnu du registre
+Priorité chronologique : 40 candidats
+  OPT 281   12 / 12  Développement mobile
+  OPT 282   11 / 12  Internet des objets
+  OPT 283   12 / 12  Visualisation de données
+  choix 1 obtenu : 24
+  choix 2 obtenu : 6
+  choix 3 obtenu : 5
+  non affectés : 5
+Journal : 5 corrections, 5 erreurs
+  ligne 4 [correction] matricule 'ipn-2024-0057' normalisé en IPN-2024-0057
+  ligne 5 [correction] soumission de IPN-2024-0067 écartée au profit de la ligne 27
+  ligne 7 [erreur] horodatage '31/02/2026 10:15' invalide
+  ligne 10 [correction] choix 'OPT 282' en double retiré
+  ligne 13 [erreur] code 'OPT 284' inconnu
+  ligne 15 [erreur] aucun choix valide pour 'IPN-2024-0065'
+  ligne 19 [correction] choix '  opt   282 ' normalisé en OPT 282
+  ligne 22 [correction] matricule ' IPN-2024-0095  ' normalisé en IPN-2024-0095
+  ligne 30 [erreur] étudiant 'IPN-2023-0099' hors L2 (L3)
+  ligne 33 [erreur] étudiant 'IPN-2024-9999' inconnu du registre
