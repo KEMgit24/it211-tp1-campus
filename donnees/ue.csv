@@ -1,0 +1,34 @@
+code,intitule,credits,niveau,semestre,filiere,capacite,responsable
+CSC 101,Algorithmique et programmation 1,4,L1,1,,120,ENS-001
+MAT 101,Mathématiques discrètes,3,L1,1,,120,ENS-002
+IT 110,Architecture des ordinateurs,3,L1,1,,120,ENS-003
+ANG 101,Anglais technique 1,2,L1,1,,120,ENS-004
+COM 101,Techniques d'expression,2,L1,1,,120,ENS-005
+CSC 102,Algorithmique et programmation 2,4,L1,2,,120,ENS-006
+MAT 102,Algèbre linéaire,3,L1,2,,120,ENS-007
+IT 130,Systèmes d'exploitation,3,L1,2,,120,ENS-008
+RES 131,Introduction aux réseaux,3,L1,2,,120,ENS-009
+ANG 102,Anglais technique 2,2,L1,2,,120,ENS-010
+CSC 241,Programmation structurée,4,L2,1,,60,ENS-011
+CSC 242,Programmation avancée,4,L2,1,,60,ENS-012
+BDD 221,Bases de données relationnelles,4,L2,1,,60,ENS-013
+RES 231,Réseaux informatiques,3,L2,1,,60,ENS-014
+GL 251,Génie logiciel,3,L2,1,ISI,60,ENS-015
+SEC 261,Sécurité des systèmes,3,L2,1,CYB,60,ENS-016
+STA 271,Statistiques pour la donnée,3,L2,1,DSB,60,ENS-001
+IT 211,Introduction au développement des applications (Python),4,L2,2,,60,ENS-002
+WEB 212,Technologies du web,3,L2,2,,60,ENS-003
+ANG 201,Anglais professionnel 1,2,L2,2,,60,ENS-004
+GL 252,Modélisation des systèmes,3,L2,2,ISI,60,ENS-005
+SEC 262,Sécurité des réseaux,3,L2,2,CYB,60,ENS-006
+STA 272,Analyse de données,3,L2,2,DSB,60,ENS-007
+IT 311,Développement web avancé,4,L3,1,ISI,40,ENS-008
+GL 351,Gestion de projet informatique,3,L3,1,ISI,40,ENS-009
+SEC 361,Cryptographie appliquée,4,L3,1,CYB,40,ENS-010
+RES 331,Administration réseau,4,L3,1,CYB,40,ENS-011
+DS 371,Apprentissage automatique,4,L3,1,DSB,40,ENS-012
+DS 372,Entrepôts de données,3,L3,1,DSB,40,ENS-013
+ENT 301,Entrepreneuriat numérique,2,L3,1,,40,ENS-014
+ANG 301,Anglais professionnel 2,2,L3,2,,40,ENS-015
+PRJ 301,Projet tutoré,6,L3,2,,40,ENS-016
+STG 302,Stage en entreprise,10,L3,2,,40,ENS-001
